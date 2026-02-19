@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  title: PostFinancial Payments API
+  description: Payment processing API (Legacy - needs updating)
+  version: 1.0.0
+  contact:
+    email: api@postfinancial.com
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+
+  /api/v1/payments:
+    get:
+      summary: List payments
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+    
+    post:
+      summary: Create payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customerId:
+                  type: string
+                amount:
+                  type: number
+                currency:
+                  type: string
+      responses:
+        '201':
+          description: Payment created
+
+  /api/v1/customers:
+    get:
+      summary: List customers
+      responses:
+        '200':
+          description: Success
+
+# NOTE: This spec is intentionally incomplete and outdated
+# Missing:
+# - Many endpoints (refunds, webhooks, specific payment operations)
+# - Proper schemas and $refs
+# - Error responses
+# - Security definitions
+# - Detailed parameter descriptions
+# - Response examples
+# - Needs upgrade to OpenAPI 3.1.2
