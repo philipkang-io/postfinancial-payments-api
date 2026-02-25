@@ -2,7 +2,8 @@ name: Publish changes to Postman
 on:
   push:
     branches:
-      - main  # Trigger sync when code is merged to main
+      - main
+      - master
 
 jobs:
   publish-changes:
