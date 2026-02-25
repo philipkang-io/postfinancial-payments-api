@@ -11,7 +11,7 @@
       "../openapi-legacy.yaml"
     ],
     "collections": [
-      "../postman/collections/PostFinancial Payments API - V1"
+      "../postman/collections/PostFinancial Payments API - V1.json"
     ]
   }
 }
