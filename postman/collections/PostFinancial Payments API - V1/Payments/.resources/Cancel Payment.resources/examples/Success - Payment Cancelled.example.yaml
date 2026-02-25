@@ -1,0 +1,13 @@
+schemaVersion: "3.0"
+url: "{{baseUrl}}/api/v1/payments/pay_pending/cancel"
+method: PUT
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: '{"id":"pay_pending","customerId":"cust_001","amount":99.99,"currency":"USD","status":"cancelled","method":"credit_card","description":"Test
+      payment","createdAt":"2026-02-02T18:03:50.192Z","updatedAt":"2026-02-02T18:03:52.000Z"}'
+order: 1000

@@ -1,0 +1,66 @@
+schemaVersion: "3.0"
+type: http
+url: "{{baseUrl}}/api/v1/payments?status=completed&limit=10&offset=0"
+method: GET
+queryParams:
+  status: completed
+  limit: "10"
+  offset: "0"
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test("Status code is 200", () => {
+          pm.response.to.have.status(200);
+      });
+
+
+      pm.test("Response time is under 1000ms", () => {
+          pm.expect(pm.response.responseTime).to.be.below(1000);
+      });
+
+
+      pm.test("Content-Type is application/json", () => {
+          pm.expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+      });
+
+
+      pm.test("Response has pagination structure", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("data");
+          pm.expect(jsonData).to.have.property("total");
+          pm.expect(jsonData).to.have.property("limit");
+          pm.expect(jsonData).to.have.property("offset");
+      });
+
+
+      pm.test("Payment objects have required fields", () => {
+          const jsonData = pm.response.json();
+          if (jsonData.data.length > 0) {
+              const payment = jsonData.data[0];
+              pm.expect(payment).to.have.property("id");
+              pm.expect(payment).to.have.property("customerId");
+              pm.expect(payment).to.have.property("amount");
+              pm.expect(payment).to.have.property("currency");
+              pm.expect(payment).to.have.property("status");
+              pm.expect(payment).to.have.property("method");
+          }
+      });
+
+
+      pm.test("Payment ID format is valid", () => {
+          const jsonData = pm.response.json();
+          if (jsonData.data.length > 0) {
+              pm.expect(jsonData.data[0].id).to.match(/^pay_/);
+          }
+      });
+
+
+      pm.test("Amount is a positive number", () => {
+          const jsonData = pm.response.json();
+          jsonData.data.forEach(payment => {
+              pm.expect(payment.amount).to.be.above(0);
+          });
+      });
+    language: text/javascript
+examples: ./.resources/List Payments.resources/examples
+order: 1000

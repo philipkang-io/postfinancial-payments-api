@@ -1,0 +1,77 @@
+schemaVersion: "3.0"
+type: http
+url: "{{baseUrl}}/api/v1/payments"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "customerId": "{{customerId}}",  // Change from "cust_001"
+      "amount": 99.99,
+      "currency": "USD",
+      "method": "credit_card",
+      "description": "Test payment"
+    }
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test("Status code is 201", () => {
+          pm.response.to.have.status(201);
+      });
+
+
+      pm.test("Response time is under 1000ms", () => {
+          pm.expect(pm.response.responseTime).to.be.below(1000);
+      });
+
+
+      pm.test("Content-Type is application/json", () => {
+          pm.expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+      });
+
+
+      pm.test("Created payment has required fields", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("id");
+          pm.expect(jsonData).to.have.property("customerId");
+          pm.expect(jsonData).to.have.property("amount");
+          pm.expect(jsonData).to.have.property("currency");
+          pm.expect(jsonData).to.have.property("status");
+          pm.expect(jsonData).to.have.property("method");
+          pm.expect(jsonData).to.have.property("createdAt");
+          pm.expect(jsonData).to.have.property("updatedAt");
+      });
+
+
+      pm.test("New payment ID format is valid", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.id).to.match(/^pay_/);
+      });
+
+
+      pm.test("New payment status is pending", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.status).to.equal("pending");
+      });
+
+
+      pm.test("Amount matches request", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.amount).to.equal(99.99);
+      });
+
+
+      pm.test("Customer ID matches request", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.customerId).to.equal(pm.environment.get("customerId"));
+      });
+
+
+      // Store payment ID for subsequent requests
+
+      pm.collectionVariables.set("createdPaymentId", pm.response.json().id);
+    language: text/javascript
+examples: ./.resources/Create Payment.resources/examples
+order: 4000

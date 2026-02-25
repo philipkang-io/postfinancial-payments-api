@@ -1,0 +1,54 @@
+schemaVersion: "3.0"
+type: http
+url: "{{baseUrl}}/api/v1/customers/{{customerId}}"
+method: GET
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test("Status code is 200", () => {
+          pm.response.to.have.status(200);
+      });
+
+
+      pm.test("Response time is under 500ms", () => {
+          pm.expect(pm.response.responseTime).to.be.below(500);
+      });
+
+
+      pm.test("Content-Type is application/json", () => {
+          pm.expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+      });
+
+
+      pm.test("Response has required customer fields", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("id");
+          pm.expect(jsonData).to.have.property("email");
+          pm.expect(jsonData).to.have.property("name");
+          pm.expect(jsonData).to.have.property("createdAt");
+          pm.expect(jsonData).to.have.property("totalSpent");
+      });
+
+
+      pm.test("Field types are correct", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.id).to.be.a("string");
+          pm.expect(jsonData.email).to.be.a("string");
+          pm.expect(jsonData.name).to.be.a("string");
+          pm.expect(jsonData.totalSpent).to.be.a("number");
+      });
+
+
+      pm.test("Customer ID matches request", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.id).to.equal(pm.environment.get("customerId"));
+      });
+
+
+      pm.test("Email format is valid", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.email).to.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+      });
+    language: text/javascript
+examples: ./.resources/Get Customer by ID.resources/examples
+order: 2000

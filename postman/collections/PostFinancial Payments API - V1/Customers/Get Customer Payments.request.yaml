@@ -1,0 +1,57 @@
+schemaVersion: "3.0"
+type: http
+url: "{{baseUrl}}/api/v1/customers/{{customerId}}/payments"
+method: GET
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test("Status code is 200", () => {
+          pm.response.to.have.status(200);
+      });
+
+
+      pm.test("Response time is under 1000ms", () => {
+          pm.expect(pm.response.responseTime).to.be.below(1000);
+      });
+
+
+      pm.test("Content-Type is application/json", () => {
+          pm.expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+      });
+
+
+      pm.test("Response has required fields", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("customerId");
+          pm.expect(jsonData).to.have.property("payments");
+      });
+
+
+      pm.test("Payments is an array", () => {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.payments).to.be.an("array");
+      });
+
+
+      pm.test("Payment objects have required fields", () => {
+          const jsonData = pm.response.json();
+          if (jsonData.payments.length > 0) {
+              const payment = jsonData.payments[0];
+              pm.expect(payment).to.have.property("id");
+              pm.expect(payment).to.have.property("customerId");
+              pm.expect(payment).to.have.property("amount");
+              pm.expect(payment).to.have.property("currency");
+              pm.expect(payment).to.have.property("status");
+          }
+      });
+
+
+      pm.test("All payments belong to requested customer", () => {
+          const jsonData = pm.response.json();
+          jsonData.payments.forEach(payment => {
+              pm.expect(payment.customerId).to.equal(jsonData.customerId);
+          });
+      });
+    language: text/javascript
+examples: ./.resources/Get Customer Payments.resources/examples
+order: 3000

@@ -1,0 +1,23 @@
+schemaVersion: "3.0"
+url: "{{baseUrl}}/api/v1/customers"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "customer@example.com",
+      "name": "John Doe",
+      "phone": "+1-555-0123"
+    }
+response:
+  statusCode: 409
+  statusText: Conflict
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: '{"error":"Customer already exists","message":"Customer with email
+      customer@example.com already exists"}'
+order: 2000

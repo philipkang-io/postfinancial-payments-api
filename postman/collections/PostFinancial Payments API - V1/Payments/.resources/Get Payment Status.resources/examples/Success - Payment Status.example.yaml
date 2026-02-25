@@ -1,0 +1,12 @@
+schemaVersion: "3.0"
+url: "{{baseUrl}}/api/v1/payments/pay_001/status"
+method: GET
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: '{"paymentId":"pay_001","status":"completed","updatedAt":"2024-01-10T00:00:00.000Z"}'
+order: 1000

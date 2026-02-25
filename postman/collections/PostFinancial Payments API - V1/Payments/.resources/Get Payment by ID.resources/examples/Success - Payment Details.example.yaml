@@ -1,0 +1,13 @@
+schemaVersion: "3.0"
+url: "{{baseUrl}}/api/v1/payments/pay_001"
+method: GET
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: '{"id":"pay_001","customerId":"cust_001","amount":99.99,"currency":"USD","status":"completed","method":"credit_card","description":"Monthly
+      subscription","createdAt":"2024-01-10T00:00:00.000Z","updatedAt":"2024-01-10T00:00:00.000Z"}'
+order: 1000

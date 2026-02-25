@@ -1,0 +1,25 @@
+schemaVersion: "3.0"
+url: "{{baseUrl}}/api/v1/payments"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "customerId": "cust_001",
+      "amount": 99.99,
+      "currency": "USD",
+      "method": "credit_card",
+      "description": "Test payment"
+    }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: '{"id":"pay_d666f1b2","customerId":"cust_001","amount":99.99,"currency":"USD","status":"pending","method":"credit_card","description":"Test
+      payment","createdAt":"2026-02-02T18:03:50.192Z","updatedAt":"2026-02-02T18:03:50.192Z"}'
+order: 1000

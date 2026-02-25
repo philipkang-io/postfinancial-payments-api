@@ -1,0 +1,24 @@
+schemaVersion: "3.0"
+url: "{{baseUrl}}/api/v1/webhooks"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "type": "payment.completed",
+      "data": {
+        "paymentId": "pay_001",
+        "amount": 99.99
+      }
+    }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: '{"received":true,"eventId":"evt_cddea8c2"}'
+order: 1000

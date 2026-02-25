@@ -1,0 +1,9 @@
+# Use this workspace to collaborate
+workspace:
+  id: 692c35ba-96bd-43d3-b602-c41080bf23bc
+
+# All resources in the `postman/` folder are automatically registered in Local View.
+# Point to additional files outside the `postman/` folder to register them individually. Example:
+localResources:
+  specs:
+    - ../openapi-legacy.yaml

@@ -1,0 +1,6 @@
+name: Dev Environment
+values:
+  - key: baseUrl
+    value: 'https://1qorl7mfhe.execute-api.us-west-2.amazonaws.com'
+    enabled: true
+    type: default
