@@ -1,0 +1,64 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/customers"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "customer@example.com",
+      "name": "John Doe",
+      "phone": "+1-555-0123"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 201 Created', function () {
+          pm.response.to.have.status(201);
+      })
+
+      pm.test('Created customer has ID', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('id');
+          pm.expect(jsonData.id).to.be.a('string');
+          pm.expect(jsonData.id.length).to.be.above(0);
+      })
+
+      pm.test('Customer ID has correct format (cust_*)', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.id).to.match(/^cust_/);
+      })
+
+      pm.test('Response data matches request', function () {
+          const jsonData = pm.response.json();
+          const requestBody = JSON.parse(pm.request.body.raw);
+          pm.expect(jsonData.email).to.eql(requestBody.email);
+          pm.expect(jsonData.name).to.eql(requestBody.name);
+          if (requestBody.phone) {
+              pm.expect(jsonData.phone).to.eql(requestBody.phone);
+          }
+      })
+
+      pm.test('Extract and store createdCustomerId', function () {
+          const jsonData = pm.response.json();
+          pm.collectionVariables.set('createdCustomerId', jsonData.id);
+          console.log('Stored createdCustomerId:', jsonData.id);
+      })
+
+      pm.test('CreatedAt timestamp is recent', function () {
+          const jsonData = pm.response.json();
+          const createdAt = new Date(jsonData.createdAt);
+          const now = new Date();
+          const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+          pm.expect(createdAt).to.be.above(fiveMinutesAgo);
+      })
+
+      pm.test('Email has valid format', function () {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.email).to.match(emailRegex);
+      })
+    language: text/javascript
+examples: ./.resources/Create Customer.resources/examples
+order: 4000

@@ -8,3 +8,6 @@ localResources:
   specs:
     - ../openapi-legacy.yaml
   collections: []
+cloudResources:
+  collections:
+    ../postman/collections/PostFinancial Payments API: 6effe346-10ce-4939-89e9-72eeb77092ed

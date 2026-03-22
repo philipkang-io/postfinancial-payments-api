@@ -1,0 +1,56 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/webhooks"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "type": "payment.completed",
+      "data": {
+        "paymentId": "pay_001",
+        "amount": 99.99
+      }
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 200 OK or 202 Accepted', function () {
+          pm.expect(pm.response.code).to.be.oneOf([
+              200,
+              202
+          ]);
+      })
+
+      pm.test('Response time is less than 1000ms', function () {
+          pm.expect(pm.response.responseTime).to.be.below(1000);
+      })
+
+      pm.test('Receipt confirmation is present', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('received');
+          pm.expect(jsonData.received).to.eql(true);
+      })
+
+      pm.test('Event ID is returned', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('eventId');
+          pm.expect(jsonData.eventId).to.be.a('string');
+          pm.expect(jsonData.eventId.length).to.be.above(0);
+      })
+
+      pm.test('Event ID has correct format (evt_*)', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.eventId).to.match(/^evt_/);
+      })
+
+      pm.test('Request body has valid webhook format', function () {
+          const requestBody = JSON.parse(pm.request.body.raw);
+          pm.expect(requestBody).to.have.property('type');
+          pm.expect(requestBody).to.have.property('data');
+          pm.expect(requestBody.data).to.be.an('object');
+      })
+    language: text/javascript
+examples: ./.resources/Receive Webhook Event.resources/examples
+order: 3000

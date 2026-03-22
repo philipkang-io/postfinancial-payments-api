@@ -1,0 +1,24 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/v1/refunds"
+  method: POST
+  headers:
+    Content-Type: application/json
+  body:
+    type: text
+    content: |-
+      {
+        "paymentId": "pay_001",
+        "amount": 99.99,
+        "reason": "Customer request"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: '{"id":"ref_dccd45e1","paymentId":"pay_001","amount":99.99,"reason":"Customer
+      request","status":"pending","createdAt":"2026-02-02T18:03:51.349Z"}'
+order: 1000

@@ -1,0 +1,8 @@
+$kind: collection
+description: Complete PostFinancial Payments API collection with example
+  responses from actual API runs. This collection includes all endpoints with
+  comprehensive test coverage examples.
+variables:
+  baseUrl: http://localhost:3000
+  createdPaymentId: ""
+  createdRefundId: ""

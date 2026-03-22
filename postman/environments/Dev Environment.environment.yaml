@@ -1,0 +1,5 @@
+name: Dev Environment
+values:
+  - key: baseUrl
+    value: ''
+    enabled: true
