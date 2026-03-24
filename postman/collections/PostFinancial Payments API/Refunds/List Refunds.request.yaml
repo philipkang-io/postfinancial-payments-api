@@ -1,0 +1,57 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/refunds"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 200', function () {
+          pm.response.to.have.status(200);
+      })
+
+      pm.test('Response has data array', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('data');
+          pm.expect(jsonData.data).to.be.an('array');
+      })
+
+      pm.test('Response has total count', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('total');
+          pm.expect(jsonData.total).to.be.a('number');
+      })
+
+      pm.test('Each refund has required fields', function () {
+          const jsonData = pm.response.json();
+          jsonData.data.forEach(function (refund) {
+              pm.expect(refund).to.have.property('id');
+              pm.expect(refund).to.have.property('paymentId');
+              pm.expect(refund).to.have.property('amount');
+              pm.expect(refund).to.have.property('status');
+              pm.expect(refund).to.have.property('createdAt');
+          });
+      })
+
+      pm.test('Refund status values are valid', function () {
+          const validStatuses = [
+              'pending',
+              'approved',
+              'rejected',
+              'completed',
+              'failed'
+          ];
+          const jsonData = pm.response.json();
+          jsonData.data.forEach(function (refund) {
+              pm.expect(validStatuses).to.include(refund.status);
+          });
+      })
+
+      pm.test('Refund amounts are positive numbers', function () {
+          const jsonData = pm.response.json();
+          jsonData.data.forEach(function (refund) {
+              pm.expect(refund.amount).to.be.a('number');
+              pm.expect(refund.amount).to.be.above(0);
+          });
+      })
+    language: text/javascript
+examples: ./.resources/List Refunds.resources/examples
+order: 1000

@@ -1,0 +1,52 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/customers?limit=20&offset=0"
+method: GET
+queryParams:
+  limit: "20"
+  offset: "0"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 200', function () {
+          pm.response.to.have.status(200);
+      })
+
+      pm.test('Response time is less than 2000ms', function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      })
+
+      pm.test('Response has pagination structure', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('data');
+          pm.expect(jsonData.data).to.be.an('array');
+          pm.expect(jsonData).to.have.property('total');
+          pm.expect(jsonData.total).to.be.a('number');
+      })
+
+      pm.test('Each customer has required fields', function () {
+          const jsonData = pm.response.json();
+          jsonData.data.forEach(function (customer) {
+              pm.expect(customer).to.have.property('id');
+              pm.expect(customer).to.have.property('email');
+              pm.expect(customer).to.have.property('name');
+              pm.expect(customer).to.have.property('createdAt');
+          });
+      })
+
+      pm.test('Customer emails have valid format', function () {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          const jsonData = pm.response.json();
+          jsonData.data.forEach(function (customer) {
+              pm.expect(customer.email).to.match(emailRegex);
+          });
+      })
+
+      pm.test('Customer IDs have correct format (cust_*)', function () {
+          const jsonData = pm.response.json();
+          jsonData.data.forEach(function (customer) {
+              pm.expect(customer.id).to.match(/^cust_/);
+          });
+      })
+    language: text/javascript
+examples: ./.resources/List Customers.resources/examples
+order: 1000

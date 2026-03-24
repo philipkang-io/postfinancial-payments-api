@@ -1,0 +1,57 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/customers/cust_001"
+method: GET
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test('Status code is 200', function () {
+          pm.response.to.have.status(200);
+      })
+
+
+      pm.test('Response time is less than 1000ms', function () {
+          pm.expect(pm.response.responseTime).to.be.below(1000);
+      })
+
+
+      pm.test('Response has all required fields', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('id');
+          pm.expect(jsonData).to.have.property('email');
+          pm.expect(jsonData).to.have.property('name');
+          pm.expect(jsonData).to.have.property('createdAt');
+      })
+
+
+      pm.test('Customer ID matches requested ID', function () {
+          const jsonData = pm.response.json();
+          const requestedId = pm.request.url.path[pm.request.url.path.length - 1];
+          pm.expect(jsonData.id).to.eql(requestedId);
+      })
+
+
+      pm.test('Customer ID has correct format (cust_*)', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.id).to.match(/^cust_/);
+      })
+
+
+      pm.test('Email has valid format', function () {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.email).to.match(emailRegex);
+      })
+
+
+      pm.test('Timestamps are valid ISO 8601 format', function () {
+          const jsonData = pm.response.json();
+          const createdAt = new Date(jsonData.createdAt);
+          pm.expect(createdAt.toString()).to.not.eql('Invalid Date');
+          if (jsonData.updatedAt) {
+              const updatedAt = new Date(jsonData.updatedAt);
+              pm.expect(updatedAt.toString()).to.not.eql('Invalid Date');
+          }
+      })
+    language: text/javascript
+examples: ./.resources/Get Customer by ID.resources/examples
+order: 2000

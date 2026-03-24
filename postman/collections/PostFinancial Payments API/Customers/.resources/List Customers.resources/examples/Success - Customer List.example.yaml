@@ -1,0 +1,20 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/v1/customers?limit=20&offset=0"
+  method: GET
+  queryParams:
+    limit: "20"
+    offset: "0"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: '{"data":[{"id":"cust_001","email":"john.doe@example.com","name":"John
+      Doe Updated","phone":"+1-555-9999","address":{"street":"123 Main
+      St","city":"San
+      Francisco","state":"CA","postalCode":"94102","country":"US"},"createdAt":"2023-01-15T00:00:00.000Z","totalSpent":1250},{"id":"cust_002","email":"jane.smith@example.com","name":"Jane
+      Smith","createdAt":"2023-03-20T00:00:00.000Z","totalSpent":500}],"total":2,"limit":20,"offset":0}'
+order: 1000

@@ -1,0 +1,84 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/payments?status=completed&limit=10&offset=0"
+method: GET
+queryParams:
+  status: completed
+  limit: "10"
+  offset: "0"
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test('Status code is 200', function () {
+          pm.response.to.have.status(200);
+      })
+
+
+      pm.test('Response time is less than 2000ms', function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      })
+
+
+      pm.test('Content-Type header is application/json', function () {
+          pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');
+      })
+
+
+      pm.test('Response body matches schema', function () {
+          pm.response.to.have.jsonSchema(listPaymentsSchema);
+      })
+
+
+      pm.test('Data array contains valid payment objects', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.data).to.be.an('array');
+          jsonData.data.forEach(function (payment, index) {
+              pm.expect(payment.id).to.be.a('string', `Payment ${ index }: id should be string`);
+              pm.expect(payment.amount).to.be.a('number', `Payment ${ index }: amount should be number`);
+              pm.expect(payment.currency).to.be.a('string', `Payment ${ index }: currency should be string`);
+              pm.expect(payment.status).to.be.a('string', `Payment ${ index }: status should be string`);
+              pm.expect(payment.createdAt).to.be.a('string', `Payment ${ index }: createdAt should be string`);
+          });
+      })
+
+
+      pm.test('Payment status values are valid', function () {
+          const validStatuses = [
+              'pending',
+              'processing',
+              'completed',
+              'failed',
+              'cancelled',
+              'refunded'
+          ];
+          const jsonData = pm.response.json();
+          jsonData.data.forEach(function (payment, index) {
+              pm.expect(validStatuses).to.include(payment.status, `Payment ${ index }: invalid status value`);
+          });
+      })
+
+
+      pm.test('Payment amounts are positive numbers', function () {
+          const jsonData = pm.response.json();
+          jsonData.data.forEach(function (payment, index) {
+              pm.expect(payment.amount).to.be.above(0, `Payment ${ index }: amount should be positive`);
+          });
+      })
+
+
+      pm.test('Currency codes are valid ISO 4217 format', function () {
+          const jsonData = pm.response.json();
+          jsonData.data.forEach(function (payment, index) {
+              pm.expect(payment.currency).to.match(/^[A-Z]{3}$/, `Payment ${ index }: currency should be 3-letter ISO code`);
+          });
+      })
+
+
+      pm.test('Pagination values are non-negative integers', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.pagination.total).to.be.at.least(0);
+          pm.expect(jsonData.pagination.limit).to.be.at.least(0);
+          pm.expect(jsonData.pagination.offset).to.be.at.least(0);
+      })
+    language: text/javascript
+examples: ./.resources/List Payments.resources/examples
+order: 1000

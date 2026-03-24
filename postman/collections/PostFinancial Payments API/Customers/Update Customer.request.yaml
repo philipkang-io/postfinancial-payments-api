@@ -1,0 +1,69 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/customers/cust_001"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "John Doe Updated",
+      "phone": "+1-555-9999"
+    }
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test('Status code is 200', function () {
+          pm.response.to.have.status(200);
+      })
+
+
+      pm.test('Response has required fields', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('id');
+          pm.expect(jsonData).to.have.property('email');
+          pm.expect(jsonData).to.have.property('name');
+          pm.expect(jsonData).to.have.property('updatedAt');
+      })
+
+
+      pm.test('Updated fields reflect changes', function () {
+          const jsonData = pm.response.json();
+          const requestBody = JSON.parse(pm.request.body.raw);
+          if (requestBody.name) {
+              pm.expect(jsonData.name).to.eql(requestBody.name);
+          }
+          if (requestBody.phone) {
+              pm.expect(jsonData.phone).to.eql(requestBody.phone);
+          }
+          if (requestBody.email) {
+              pm.expect(jsonData.email).to.eql(requestBody.email);
+          }
+      })
+
+
+      pm.test('Customer ID is unchanged', function () {
+          const jsonData = pm.response.json();
+          const requestedId = pm.request.url.path[pm.request.url.path.length - 1];
+          pm.expect(jsonData.id).to.eql(requestedId);
+      })
+
+
+      pm.test('Updated_at is after created_at', function () {
+          const jsonData = pm.response.json();
+          if (jsonData.createdAt && jsonData.updatedAt) {
+              const createdAt = new Date(jsonData.createdAt);
+              const updatedAt = new Date(jsonData.updatedAt);
+              pm.expect(updatedAt.getTime()).to.be.at.least(createdAt.getTime());
+          }
+      })
+
+
+      pm.test('Timestamps are valid ISO 8601 format', function () {
+          const jsonData = pm.response.json();
+          const updatedAt = new Date(jsonData.updatedAt);
+          pm.expect(updatedAt.toString()).to.not.eql('Invalid Date');
+      })
+    language: text/javascript
+examples: ./.resources/Update Customer.resources/examples
+order: 5000

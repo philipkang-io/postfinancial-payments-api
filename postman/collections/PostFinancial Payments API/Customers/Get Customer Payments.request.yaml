@@ -1,0 +1,54 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/customers/cust_001/payments"
+method: GET
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test('Status code is 200', function () {
+          pm.response.to.have.status(200);
+      })
+
+
+      pm.test('Response has payments array', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('payments');
+          pm.expect(jsonData.payments).to.be.an('array');
+      })
+
+
+      pm.test('Response includes customer ID', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('customerId');
+      })
+
+
+      pm.test('Each payment has required fields', function () {
+          const jsonData = pm.response.json();
+          jsonData.payments.forEach(function (payment) {
+              pm.expect(payment).to.have.property('id');
+              pm.expect(payment).to.have.property('customerId');
+              pm.expect(payment).to.have.property('amount');
+              pm.expect(payment).to.have.property('status');
+              pm.expect(payment).to.have.property('createdAt');
+          });
+      })
+
+
+      pm.test('All payments belong to requested customer', function () {
+          const jsonData = pm.response.json();
+          const requestedCustomerId = pm.request.url.path[pm.request.url.path.length - 2];
+          jsonData.payments.forEach(function (payment) {
+              pm.expect(payment.customerId).to.eql(requestedCustomerId);
+          });
+      })
+
+
+      pm.test('Payment IDs have correct format (pay_*)', function () {
+          const jsonData = pm.response.json();
+          jsonData.payments.forEach(function (payment) {
+              pm.expect(payment.id).to.match(/^pay_/);
+          });
+      })
+    language: text/javascript
+examples: ./.resources/Get Customer Payments.resources/examples
+order: 3000

@@ -1,0 +1,5 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/refunds/ref_001"
+method: GET
+examples: ./.resources/Get Refund by ID.resources/examples
+order: 2000

@@ -1,0 +1,14 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/v1/customers/cust_001"
+  method: DELETE
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: '{"error":"Cannot delete customer","message":"Customer has existing
+      payments. Please cancel or refund all payments first."}'
+order: 1000

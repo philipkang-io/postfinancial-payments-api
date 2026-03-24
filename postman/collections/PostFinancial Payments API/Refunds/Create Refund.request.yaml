@@ -1,0 +1,63 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/refunds"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "paymentId": "pay_001",
+      "amount": 99.99,
+      "reason": "Customer request"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 201 Created', function () {
+          pm.response.to.have.status(201);
+      })
+
+      pm.test('Created refund has ID', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('id');
+          pm.expect(jsonData.id).to.be.a('string');
+          pm.expect(jsonData.id.length).to.be.above(0);
+      })
+
+      pm.test('Refund ID has correct format (ref_*)', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.id).to.match(/^ref_/);
+      })
+
+      pm.test('Initial status is pending', function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.status).to.eql('pending');
+      })
+
+      pm.test('Response data matches request', function () {
+          const jsonData = pm.response.json();
+          const requestBody = JSON.parse(pm.request.body.raw);
+          pm.expect(jsonData.paymentId).to.eql(requestBody.paymentId);
+          pm.expect(jsonData.amount).to.eql(requestBody.amount);
+          if (requestBody.reason) {
+              pm.expect(jsonData.reason).to.eql(requestBody.reason);
+          }
+      })
+
+      pm.test('Extract and store createdRefundId', function () {
+          const jsonData = pm.response.json();
+          pm.collectionVariables.set('createdRefundId', jsonData.id);
+          console.log('Stored createdRefundId:', jsonData.id);
+      })
+
+      pm.test('CreatedAt timestamp is recent', function () {
+          const jsonData = pm.response.json();
+          const createdAt = new Date(jsonData.createdAt);
+          const now = new Date();
+          const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+          pm.expect(createdAt).to.be.above(fiveMinutesAgo);
+      })
+    language: text/javascript
+examples: ./.resources/Create Refund.resources/examples
+order: 3000

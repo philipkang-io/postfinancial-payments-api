@@ -1,0 +1,10 @@
+# Use this workspace to collaborate
+workspace:
+  id: 03c43298-a48b-4961-bfba-8f522a00e1ad
+
+localResources:
+  specs:
+    - ../openapi-legacy.yaml
+cloudResources:
+  collections:
+    ../postman/collections/PostFinancial Payments API: 3ef17e4e-07c8-4d6b-a6a2-aeef13cf48d1

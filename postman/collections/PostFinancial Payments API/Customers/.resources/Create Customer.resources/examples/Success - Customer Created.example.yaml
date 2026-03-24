@@ -1,0 +1,24 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/v1/customers"
+  method: POST
+  headers:
+    Content-Type: application/json
+  body:
+    type: text
+    content: |-
+      {
+        "email": "newcustomer@example.com",
+        "name": "New Customer",
+        "phone": "+1-555-0123"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: '{"id":"cust_new123","email":"newcustomer@example.com","name":"New
+      Customer","phone":"+1-555-0123","createdAt":"2026-02-02T18:03:48.000Z","totalSpent":0}'
+order: 1000
